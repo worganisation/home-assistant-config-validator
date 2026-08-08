@@ -1,0 +1,92 @@
+---
+name: Integration Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+concurrency:
+  group: integration-test-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  run-integration-test:
+    name: Run Integration Test
+    runs-on: ubuntu-latest
+    env:
+      EXIT_1: '0'
+      HA_REPO_PATH: ${{ github.workspace }}/home-assistant
+    steps:
+      - name: Clone Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: home-assistant-config-validator
+          ref: ${{ github.ref}}
+          token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+
+      - name: Get Latest HA Release
+        id: ha-tag
+        env:
+          GH_TOKEN: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+        # yamllint disable rule:line-length
+        run: |
+          tag=$(gh release view --repo worgarside/home-assistant --json tagName --jq '.tagName')
+
+          echo "Running integration test against [`worgarside/home-assistant@${tag}`](https://github.com/worgarside/home-assistant/releases/tag/${tag})"
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+        # yamllint enable rule:line-length
+
+      - name: Clone Home Assistant Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: home-assistant
+          ref: ${{ steps.ha-tag.outputs.tag }}
+          repository: worgarside/home-assistant
+          token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
+
+      - name: Load cached .local
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.local
+          key: dotlocal-${{ runner.os }}
+
+      - name: Install Poetry
+        uses: snok/install-poetry@a783c322200f0519c7926aa6faa857c4e23e9263 # v1.4.2
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Load Cached Venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: 3.12
+
+      - name: Install Dependencies
+        working-directory: home-assistant-config-validator
+        run: poetry install --only main
+
+      - name: Generate README
+        working-directory: home-assistant-config-validator
+        run: poetry run python home_assistant_config_validator/readme_generator.py
+
+      - name: Validate Entities
+        working-directory: home-assistant-config-validator
+        run: poetry run python home_assistant_config_validator/validate_entities.py
+
+      - name: Validate Lovelace
+        working-directory: home-assistant-config-validator
+        continue-on-error: true
+        run: poetry run python home_assistant_config_validator/validate_lovelace.py
