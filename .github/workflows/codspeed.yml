@@ -13,9 +13,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  CACHE_FILE: poetry.lock
-
 jobs:
   benchmarks:
     name: Run Benchmarks
@@ -24,37 +21,21 @@ jobs:
       !github.event.pull_request.draft
     steps:
       - name: Clone Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
+          enable-cache: true
           python-version: '3.12'
 
-      - name: Load cached .local
-        uses: actions/cache@v5
-        with:
-          path: ~/.local
-          key: dotlocal
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-
-      - name: Load Cached Venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v5
-        with:
-          path: .venv
-          key: venv-${{ hashFiles(env.CACHE_FILE) }}
-
       - name: Install Dependencies
-        run: poetry install --sync
+        env:
+          UV_CACHE_DIR: ${{ github.workspace }}/.uv-cache
+        run: uv sync --locked --all-groups
 
       - name: Run Benchmarks
-        uses: CodSpeedHQ/action@v4
+        uses: CodSpeedHQ/action@4296e51e7041e24dadb86d1d6e8b9320d223dbe8 # v5.0.3
         with:
           token: ${{ secrets.CODSPEED_TOKEN }}
-          run: poetry run pytest --codspeed -v
+          run: uv run pytest --codspeed -v
