@@ -18,13 +18,19 @@ concurrency:
 jobs:
   run-integration-test:
     name: Run Integration Test
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+      - cc
+      - iac
+      - opentofu
     env:
       EXIT_1: '0'
       HA_REPO_PATH: ${{ github.workspace }}/home-assistant
     steps:
       - name: Clone Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: home-assistant-config-validator
           ref: ${{ github.ref}}
@@ -43,7 +49,7 @@ jobs:
         # yamllint enable rule:line-length
 
       - name: Clone Home Assistant Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: home-assistant
           ref: ${{ steps.ha-tag.outputs.tag }}
@@ -51,32 +57,38 @@ jobs:
           token: ${{ secrets.WORGARSIDE_DEV_TOKEN }}
 
       - name: Load cached .local
-        uses: actions/cache@v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.local
           key: dotlocal-${{ runner.os }}
 
       - name: Install Poetry
-        uses: snok/install-poetry@v1
+        uses: snok/install-poetry@a783c322200f0519c7926aa6faa857c4e23e9263 # v1.4.2
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
 
       - name: Load Cached Venv
         id: cached-poetry-dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
-          python-version: 3.12
+          enable-cache: true
+          python-version: '3.12'
+
+      - name: Install Python
+        run: uv python install 3.12
 
       - name: Install Dependencies
         working-directory: home-assistant-config-validator
-        run: poetry install --only main
+        run: |
+          poetry env use "$(uv python find 3.12)"
+          poetry install --only main
 
       - name: Generate README
         working-directory: home-assistant-config-validator
