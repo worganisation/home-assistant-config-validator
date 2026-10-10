@@ -673,7 +673,7 @@ wheels = [
 
 [[package]]
 name = "home-assistant-config-validator"
-version = "4.3.7"
+version = "4.3.8"
 source = { editable = "." }
 dependencies = [
     { name = "jinja2" },
