@@ -160,6 +160,9 @@ testpaths = ["tests"]
 norecursedirs = ["benchmark"]
 addopts = ["-n", "auto", "-vvv"]
 
+[tool.diff_cover]
+fail_under = 90
+
 [tool.semantic_release]
 tag_format = "{version}"
 version_toml = ["pyproject.toml:project.version"]

@@ -71,7 +71,7 @@ class Package:
             if entity_path.is_relative_to(path)
         ]
 
-        return sorted(ancestors, key=lambda x: len(x.parts), reverse=True)[0]
+        return max(ancestors, key=lambda ancestor: len(ancestor.parts))
 
     @cached_property
     def tag_paths_highest_common_ancestor(self) -> Path:
