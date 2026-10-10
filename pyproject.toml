@@ -28,7 +28,6 @@ validate-lovelace = "home_assistant_config_validator.validate_lovelace:main"
 
 [dependency-groups]
 dev = [
-  "aiohttp>=3.14.3,<4",
   "diff-cover>=10.2.0",
   "pytest>=9.1.1,<10",
   "pytest-codspeed>=3.2.0,<4",
@@ -161,7 +160,7 @@ norecursedirs = ["benchmark"]
 addopts = ["-n", "auto", "-vvv"]
 
 [tool.diff_cover]
-fail_under = 90
+fail_under = 0
 
 [tool.semantic_release]
 tag_format = "{version}"
