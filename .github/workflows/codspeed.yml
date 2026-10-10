@@ -16,6 +16,9 @@ on:
 jobs:
   benchmarks:
     name: Run Benchmarks
+    permissions:
+      contents: read
+      id-token: write
     env:
       BENCHMARK_REPO: worganisation/home-assistant
       HA_BENCHMARK_REPO_PATH: ${{ github.workspace }}/benchmark-input
@@ -59,5 +62,4 @@ jobs:
         uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
         with:
           mode: simulation
-          token: ${{ secrets.CODSPEED_TOKEN }}
           run: uv run --no-sync pytest tests/benchmark --codspeed -v -n 0
