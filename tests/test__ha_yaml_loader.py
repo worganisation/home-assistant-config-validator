@@ -76,3 +76,33 @@ def test_script_call_validates_required_fields(
 
     assert len(issues) == 1
     assert isinstance(issues[0], MissingScriptFieldError)
+
+
+@pytest.mark.parametrize("field", ["service", "action"])
+@pytest.mark.parametrize("indirect", [False, True])
+def test_templated_script_data_has_no_static_field_errors(
+    field: str,
+    *,
+    indirect: bool,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Runtime data mappings cannot be checked as literal field names."""
+    monkeypatch.setattr(
+        validation,
+        "_get_script_fields",
+        lambda: {"example": {"message": {"required": True}}},
+    )
+    issues: list[InvalidConfigurationError] = []
+    call = (
+        {
+            field: "script.turn_on",
+            "target": {"entity_id": "script.example"},
+            "data": {"variables": "{{ notification }}"},
+        }
+        if indirect
+        else {field: "script.example", "data": "{{ notification }}"}
+    )
+
+    _validate_script_consumption_inner(call, issues)
+
+    assert issues == []
