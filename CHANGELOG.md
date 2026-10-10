@@ -2,6 +2,43 @@
 
 <!-- version list -->
 
+## v4.3.9 (2026-10-10)
+
+### Bug Fixes
+
+- Validate static script data and synchronize release locks
+  ([#376](https://github.com/worgarside/home-assistant-config-validator/pull/376),
+  [`5d7c76d`](https://github.com/worgarside/home-assistant-config-validator/commit/5d7c76dd5da5f5b6b9344d04346dbd34fff67677))
+
+- **ci**: Authenticate CodSpeed uploads with job-scoped OIDC
+  ([#376](https://github.com/worgarside/home-assistant-config-validator/pull/376),
+  [`5d7c76d`](https://github.com/worgarside/home-assistant-config-validator/commit/5d7c76dd5da5f5b6b9344d04346dbd34fff67677))
+
+- **ci**: Check out private benchmark fixtures with scoped credentials
+  ([#376](https://github.com/worgarside/home-assistant-config-validator/pull/376),
+  [`5d7c76d`](https://github.com/worgarside/home-assistant-config-validator/commit/5d7c76dd5da5f5b6b9344d04346dbd34fff67677))
+
+- **ci**: Run benchmarks on supported Ubuntu
+  ([#376](https://github.com/worgarside/home-assistant-config-validator/pull/376),
+  [`5d7c76d`](https://github.com/worgarside/home-assistant-config-validator/commit/5d7c76dd5da5f5b6b9344d04346dbd34fff67677))
+
+- **tooling**: Modernize locked validation and benchmark workflows
+  ([#376](https://github.com/worgarside/home-assistant-config-validator/pull/376),
+  [`5d7c76d`](https://github.com/worgarside/home-assistant-config-validator/commit/5d7c76dd5da5f5b6b9344d04346dbd34fff67677))
+
+### Chores
+
+- **ci**: Disable CodSpeed benchmarks
+  ([#376](https://github.com/worgarside/home-assistant-config-validator/pull/376),
+  [`5d7c76d`](https://github.com/worgarside/home-assistant-config-validator/commit/5d7c76dd5da5f5b6b9344d04346dbd34fff67677))
+
+### Code Style
+
+- Fixes from prek hooks
+  ([#376](https://github.com/worgarside/home-assistant-config-validator/pull/376),
+  [`5d7c76d`](https://github.com/worgarside/home-assistant-config-validator/commit/5d7c76dd5da5f5b6b9344d04346dbd34fff67677))
+
+
 ## v4.3.8 (2026-10-10)
 
 ### Bug Fixes
