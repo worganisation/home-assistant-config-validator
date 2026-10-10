@@ -10,6 +10,14 @@ import pytest
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 from wg_utilities.helpers.processor import JProc
 
+from home_assistant_config_validator.models.config import validation
+from home_assistant_config_validator.models.config.validation import (
+    _validate_script_consumption_inner,
+)
+from home_assistant_config_validator.utils.exception import (
+    InvalidConfigurationError,
+    MissingScriptFieldError,
+)
 from home_assistant_config_validator.utils.ha_yaml_loader import (
     Entity,
     HAYamlLoader,
@@ -49,3 +57,22 @@ def test_sequence_dependency_has_no_field_key(
     processor.process(sequence_type(["automation.do_something"]), entity_ids=dependencies)
 
     assert dependencies == {("", "automation.do_something")}
+
+
+@pytest.mark.parametrize("field", ["service", "action"])
+def test_script_call_validates_required_fields(
+    field: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Both supported script-call keys enforce required fields."""
+    monkeypatch.setattr(
+        validation,
+        "_get_script_fields",
+        lambda: {"example": {"message": {"required": True}}},
+    )
+    issues: list[InvalidConfigurationError] = []
+
+    _validate_script_consumption_inner({field: "script.example"}, issues)
+
+    assert len(issues) == 1
+    assert isinstance(issues[0], MissingScriptFieldError)

@@ -70,6 +70,8 @@ COMMON_ACTIONS: Final[dict[str, set[str]]] = {
     },
 }
 
+COMMON_SERVICES: Final[dict[str, set[str]]] = COMMON_ACTIONS
+
 JINJA_ENTITY_CONSUMERS: Final[set[str]] = {
     "device_attr",
     "device_id",
@@ -194,6 +196,7 @@ INEQUAL = Inequal()
 
 __all__ = [
     "COMMON_ACTIONS",
+    "COMMON_SERVICES",
     "ENTITIES_DIR",
     "INEQUAL",
     "JINJA_VARS",
