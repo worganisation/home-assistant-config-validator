@@ -27,8 +27,8 @@ from typing import (
     overload,
 )
 
-from jsonpath_ng import JSONPath, parse  # type: ignore[import-untyped]
-from jsonpath_ng.exceptions import JsonPathParserError  # type: ignore[import-untyped]
+from jsonpath_ng.exceptions import JsonPathParserError
+from jsonpath_ng.parser import parse
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, field_validator
 from ruamel.yaml import YAML, ScalarNode
 from ruamel.yaml.comments import CommentedBase, CommentedMap, CommentedSeq
@@ -48,6 +48,7 @@ from .exception import (
 )
 
 if TYPE_CHECKING:
+    from jsonpath_ng import JSONPath
     from ruamel.yaml.representer import Representer
 
 LOGGER = getLogger(__name__)
@@ -736,7 +737,7 @@ def add_custom_tags_to_loader(loader: YAML) -> None:
         try:
             loader.constructor.add_constructor(tag_class.TAG, tag_class.construct)
             LOGGER.debug("Added constructor for %s", tag_class.TAG)
-        except AttributeError:  # noqa: PERF203
+        except AttributeError:
             continue
 
     def repr_secret(
@@ -775,7 +776,7 @@ def _validate_json_path(
 ) -> JSONPathStr | JSONPath:
     """Validate a JSONPath string."""
     try:
-        parsed = parse(path)
+        parsed = cast("JSONPath", parse(path))  # type: ignore[no-untyped-call]  # The library parser lacks annotations.
     except JsonPathParserError:
         raise UserPCHConfigurationError(
             const.ConfigurationType.VALIDATION,
@@ -883,9 +884,9 @@ def set_json_value(
     LOGGER.debug("Setting value at %s: %s", json_path_str, value)
 
     if allow_create:
-        json_path.update_or_create(obj, value)
+        json_path.update_or_create(obj, value)  # type: ignore[no-untyped-call]  # The library mutation method lacks annotations.
     else:
-        json_path.update(obj, value)
+        json_path.update(obj, value)  # type: ignore[no-untyped-call]  # The library mutation method lacks annotations.
 
     return obj
 

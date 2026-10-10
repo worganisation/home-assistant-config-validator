@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from collections.abc import Mapping
 from contextlib import suppress
 from enum import StrEnum, auto
 from functools import lru_cache
@@ -181,7 +182,7 @@ def _inner(_value_: Call, entity_ids: set[str]) -> None:
         try:
             if const.ENTITY_ID_PATTERN.fullmatch(val := arg.as_const()):
                 entity_ids.add(val)
-        except Impossible:  # noqa: PERF203
+        except Impossible:
             continue
 
 
@@ -299,6 +300,8 @@ def _validate_script_consumption_inner(
         return
 
     variables = _value_.get("data", {})
+    if not isinstance(variables, Mapping):
+        return
 
     if action in {"script.toggle", "script.turn_on"}:
         variables = variables.get("variables", {})
@@ -310,6 +313,9 @@ def _validate_script_consumption_inner(
         script_ids = entity_id if isinstance(entity_id, list) else [entity_id]
     else:
         script_ids = [action]
+
+    if not isinstance(variables, Mapping):
+        return
 
     for script_id in script_ids:
         if not (script_fields := _get_script_fields().get(script_id.removeprefix("script."))):
@@ -525,7 +531,7 @@ class ValidationConfig(Config):
                             v2=value_2,
                         ),
                     )
-            except exc.JsonPathNotFoundError as err:  # noqa: PERF203
+            except exc.JsonPathNotFoundError as err:
                 self.issues[entity_yaml.file__].append(err)
 
     def _validate_should_be_hardcoded(self, entity_yaml: Entity, /) -> None:
