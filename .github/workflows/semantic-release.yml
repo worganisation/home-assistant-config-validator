@@ -2,13 +2,6 @@
 name: Semantic Release
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - home_assistant_config_validator/**
-      - '!home_assistant_config_validator/__init__.py'
-
   workflow_dispatch:
     inputs:
       force-deployment:
@@ -32,6 +25,7 @@ concurrency:
 
 jobs:
   release:
+    if: github.ref == 'refs/heads/main'
     name: Release
     uses: worganisation/github-config-files/.github/workflows/__semantic-release.yml@0.8.4
     with:

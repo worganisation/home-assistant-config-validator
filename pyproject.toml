@@ -149,3 +149,14 @@ sort_by_size = true
 
 [tool.pytest.ini_options]
 addopts = ["-n", "auto", "-vvv"]
+
+[tool.semantic_release]
+tag_format = "{version}"
+version_toml = ["pyproject.toml:tool.poetry.version"]
+commit_message = "chore(release): {version}"
+build_command = ""
+major_on_zero = false
+allow_zero_version = false
+
+[tool.semantic_release.remote]
+ignore_token_for_push = true
