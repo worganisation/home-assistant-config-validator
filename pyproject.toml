@@ -1,34 +1,40 @@
-[tool.poetry]
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["home_assistant_config_validator"]
+
+[project]
 name = "home-assistant-config-validator"
 version = "4.3.7"
 description = "Custom validator for my Home Assistant configuration"
-authors = ["Will Garside <worgarside@gmail.com>"]
+authors = [{ name = "Will Garside", email = "worgarside@gmail.com" }]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "home_assistant_config_validator" }]
+requires-python = ">=3.12,<4"
+dependencies = [
+  "jsonpath-ng>=1.8.0,<2",
+  "pydantic>=2.13.3,<3",
+  "ruamel-yaml>=0.19.1,<0.20",
+  "jinja2>=3.1.6,<4",
+  "wg-utilities[logging]>=5.17.4,<6",
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 generate-readme = "home_assistant_config_validator.readme_generator:main"
 validate-entities = "home_assistant_config_validator.validate_entities:main"
 validate-lovelace = "home_assistant_config_validator.validate_lovelace:main"
 
-[tool.poetry.dependencies]
-python = "^3.12"
-jsonpath-ng = "^1.8.0"
-pydantic = "^2.12.5"
-ruamel-yaml = "^0.18.16"
-jinja2 = "^3.1.6"
-wg-utilities = { extras = ["logging"], version = "^5.17.4" }
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.4.1"
-pytest-codspeed = "^2.2.1"
-httpx = "^0.28.1"
-pytest-xdist = "^3.7.0"
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core"]
+[dependency-groups]
+dev = [
+  "aiohttp>=3.14.3,<4",
+  "diff-cover>=10.2.0",
+  "pytest>=9.1.1,<10",
+  "pytest-codspeed>=3.2.0,<4",
+  "pytest-cov>=7.0.0",
+  "pytest-xdist>=3.8.0,<4",
+]
 
 #######################
 # Tool Configurations #
@@ -94,7 +100,6 @@ enable_error_code = [
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
-warn_untyped_fields = true
 
 [tool.codespell]
 ignore-words-list = "iif"
@@ -115,6 +120,9 @@ lint.ignore = [
   "T201",
   "EM102",
   "ANN401",
+  "UP046", # Generic and TypeVar declarations remain supported.
+  "UP047", # Generic functions use TypeVar declarations.
+  "CPY001", # The project does not require per-file copyright headers.
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -148,11 +156,13 @@ paths = ["home_assistant_config_validator"]
 sort_by_size = true
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["benchmark"]
 addopts = ["-n", "auto", "-vvv"]
 
 [tool.semantic_release]
 tag_format = "{version}"
-version_toml = ["pyproject.toml:tool.poetry.version"]
+version_toml = ["pyproject.toml:project.version"]
 commit_message = "chore(release): {version}"
 build_command = ""
 major_on_zero = false

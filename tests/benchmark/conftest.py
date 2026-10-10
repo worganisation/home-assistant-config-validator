@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import shutil
 from contextlib import suppress
 from os import environ
@@ -12,15 +13,28 @@ from uuid import uuid4
 from zipfile import ZipFile
 
 import pytest
-from httpx import get, stream
+from aiohttp import ClientSession
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-REPO_URL: Final[str] = "https://api.github.com/repos/worgarside/home-assistant/releases/latest"
+REPO_URL: Final[str] = (
+    "https://api.github.com/repos/worganisation/home-assistant/releases/latest"
+)
 
 TMP_DIR: Final[Path] = Path.cwd() / f".tmp_{uuid4()}"
 OUTPUT_ZIP: Final[Path] = TMP_DIR / "repo.zip"
+
+
+async def _download_release() -> None:
+    async with ClientSession(raise_for_status=True) as session:
+        async with session.get(REPO_URL) as response:
+            latest_release = await response.json()
+
+        async with session.get(latest_release["zipball_url"]) as response:
+            with OUTPUT_ZIP.open("wb") as output:
+                async for chunk in response.content.iter_chunked(65536):
+                    output.write(chunk)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -29,18 +43,7 @@ def _download_latest_release_zip() -> Generator[None, None, None]:
         shutil.rmtree(TMP_DIR)
     TMP_DIR.mkdir(exist_ok=True)
 
-    response = get(REPO_URL)
-    response.raise_for_status()
-    latest_release = response.json()
-
-    zip_url = latest_release["zipball_url"]
-
-    # Stream download the zip file
-    with stream("GET", zip_url, follow_redirects=True) as r:
-        r.raise_for_status()
-        with OUTPUT_ZIP.open("wb") as fout:
-            for data in r.iter_bytes():
-                fout.write(data)
+    asyncio.run(_download_release())
 
     yield
 
