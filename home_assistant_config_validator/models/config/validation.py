@@ -181,7 +181,7 @@ def _inner(_value_: Call, entity_ids: set[str]) -> None:
         try:
             if const.ENTITY_ID_PATTERN.fullmatch(val := arg.as_const()):
                 entity_ids.add(val)
-        except Impossible:  # noqa: PERF203
+        except Impossible:
             continue
 
 
@@ -525,7 +525,7 @@ class ValidationConfig(Config):
                             v2=value_2,
                         ),
                     )
-            except exc.JsonPathNotFoundError as err:  # noqa: PERF203
+            except exc.JsonPathNotFoundError as err:
                 self.issues[entity_yaml.file__].append(err)
 
     def _validate_should_be_hardcoded(self, entity_yaml: Entity, /) -> None:
