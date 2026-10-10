@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 import shutil
 from abc import ABC, abstractmethod
-from collections.abc import Collection, Generator
+from collections.abc import Collection, Generator, Mapping
 from contextlib import suppress
 from dataclasses import dataclass, field
 from functools import cached_property, lru_cache
@@ -73,7 +73,7 @@ HAYamlLoader.width = 4096
 def entity_id_check_callback(
     _value_: str,
     _loc_: str | int,
-    _obj_type_: type[dict[str, object] | list[object]],
+    _obj_type_: type[Mapping[str, object] | list[object]],
     entity_ids: set[tuple[str, str]],
 ) -> None:
     """Identify entity IDs in strings."""
@@ -81,7 +81,9 @@ def entity_id_check_callback(
         domain, id_ = matched.groups()
 
         if not (id_ in const.COMMON_ACTIONS and domain in const.COMMON_ACTIONS[id_]):
-            entity_ids.add((str(_loc_ or "") if _obj_type_ is dict else "", _value_))
+            entity_ids.add(
+                (str(_loc_ or "") if issubclass(_obj_type_, Mapping) else "", _value_),
+            )
 
 
 def parse_hacv_comment(cmt: str, /) -> dict[str, set[str]]:
