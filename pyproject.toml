@@ -170,8 +170,11 @@ build_command = """
 uv lock
 git add uv.lock
 """
-major_on_zero = false
+major_on_zero = true
 allow_zero_version = false
+
+[tool.semantic_release.changelog.default_templates]
+mask_initial_release = false
 
 [tool.semantic_release.remote]
 ignore_token_for_push = true
