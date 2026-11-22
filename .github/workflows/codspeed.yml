@@ -16,15 +16,18 @@ on:
 jobs:
   benchmarks:
     name: Run Benchmarks
+    #
     permissions:
       contents: read
       id-token: write
+    #
     env:
       BENCHMARK_REPO: worganisation/home-assistant
       HA_BENCHMARK_REPO_PATH: ${{ github.workspace }}/benchmark-input
     runs-on: ubuntu-24.04
     if: >-
-      false && !github.event.pull_request.draft
+      github.repository != 'worganisation/home-assistant-config-validator' &&
+      !github.event.pull_request.draft
     steps:
       - name: Clone Repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -62,4 +65,5 @@ jobs:
         uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
         with:
           mode: simulation
+          token: ''
           run: uv run --no-sync pytest tests/benchmark --codspeed -v -n 0
