@@ -16,14 +16,15 @@ on:
 jobs:
   benchmarks:
     name: Run Benchmarks
-    #     permissions:
+    # 
+    permissions:
       contents: read
       id-token: write
-    #     env:
+    # 
+    env:
       BENCHMARK_REPO: 'worganisation/home-assistant'
       HA_BENCHMARK_REPO_PATH: '${{ github.workspace }}/benchmark-input'
-    runs-on: >-
-${{ fromJSON(format('{0}', '"ubuntu-24.04"')) }}
+    runs-on: ubuntu-24.04
     if: >-
       github.repository != 'worganisation/home-assistant-config-validator' &&
       !github.event.pull_request.draft
