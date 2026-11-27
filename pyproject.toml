@@ -30,7 +30,7 @@ validate-lovelace = "home_assistant_config_validator.validate_lovelace:main"
 dev = [
   "diff-cover>=10.2.0",
   "pytest>=9.1.1,<10",
-  "pytest-codspeed>=3.2.0,<4",
+  "pytest-codspeed>=5.0.4,<6",
   "pytest-cov>=7.0.0",
   "pytest-xdist>=3.8.0,<4",
 ]
